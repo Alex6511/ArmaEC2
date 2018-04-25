@@ -2,3 +2,5 @@
 *.class
 .idea/workspace.xml
 aws_sdk.properties
+aws_sdk.properties
+*.properties
