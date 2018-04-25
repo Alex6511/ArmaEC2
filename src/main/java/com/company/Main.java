@@ -4,7 +4,8 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.*;
+import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.sqs.AmazonSQSAsync;
 import com.amazonaws.services.sqs.AmazonSQSAsyncClient;
 import com.amazonaws.services.sqs.buffered.AmazonSQSBufferedAsyncClient;
@@ -25,7 +26,7 @@ public class Main {
     private static final String UNZIP_FILE_PATH = "C:\\Users\\Alex6\\Dropbox\\User Folders\\NEW HORIZONS\\Desktop\\unzipTo";
     private static final int BUFFER_SIZE = 4096;
     private static final String ARMA_TOOLS_LOCATION = "C:\\Users\\Alex6\\Dropbox\\User Folders\\NEW HORIZONS\\Desktop\\Arma Tools\\armake_v0.5.1\\armake_w64.exe";
-    private static final String PBO_MISSION_LOCATION = "C:\\Users\\Alex6\\Dropbox\\User Folders\\NEW HORIZONS\\Desktop\\pboMission";
+    private static final String PBO_MISSION_LOCATION = "C:\\Users\\Alex6\\Dropbox\\User Folders\\NEW HORIZONS\\Desktop\\pboMission\\";
 
 
     public static void main(String args[]) throws InterruptedException, ExecutionException, IOException {
@@ -89,7 +90,7 @@ public class Main {
 
                 System.out.println("The zip name was: " + zipName);
                 String outputDirectory = downloadZip(zipName, s3Client);
-                makePbo(outputDirectory);
+                makePbo(zipName, outputDirectory);
 
                 sqs.deleteMessage(new DeleteMessageRequest().withQueueUrl(url).withReceiptHandle(handle)); // delete message last in case something doesn't work
             }
@@ -102,16 +103,8 @@ public class Main {
         }
     }
 
-    private static void makePbo(String inputDirectory) throws IOException {
-        Process process = new ProcessBuilder(ARMA_TOOLS_LOCATION, inputDirectory, PBO_MISSION_LOCATION).start();
-        InputStream is = process.getInputStream();
-        InputStreamReader isr = new InputStreamReader(is);
-        BufferedReader br = new BufferedReader(isr);
-        String line;
-
-        while ((line = br.readLine()) != null) {
-            System.out.println(line);
-        }
+    private static void makePbo(String zipName, String inputDirectory) throws IOException {
+        Process process = new ProcessBuilder(ARMA_TOOLS_LOCATION, "build", "-f", inputDirectory, PBO_MISSION_LOCATION + zipName.substring(0, zipName.length() - 4) + ".pbo").start();
     }
 
     private static String downloadZip(String zipName, AmazonS3 s3Client) throws IOException {
