@@ -9,8 +9,5 @@
         <module name="ArmaEC2" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="ArmaEC2" target="1.5" />
-    </bytecodeTargetLevel>
   </component>
 </project>
